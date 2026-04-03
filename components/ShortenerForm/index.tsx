@@ -7,9 +7,26 @@ import { Input } from '../ui/input';
 export default function ShortenerForm() {
 	const [url, setUrl] = useState<string>('');
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log(url);
+
+		try {
+			const response = await fetch('/api/shorten', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ url }),
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error status ${response.status}`);
+			}
+
+			await response.json();
+			setUrl('');
+		} catch (e) {
+			console.error('Error shortening URL: ', e);
+		} finally {
+		}
 	};
 
 	return (
