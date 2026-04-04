@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { CopyIcon, EyeIcon } from 'lucide-react';
+import { Check, CopyIcon, EyeIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Url = {
@@ -12,6 +12,8 @@ type Url = {
 
 export default function UrlList() {
 	const [urls, setUrls] = useState<Url[]>([]);
+	const [copied, setCopied] = useState<boolean>(false);
+	const [copyUrl, setCopyUrl] = useState<string>('');
 	const shortenerUrl = (code: string) =>
 		`${process.env.NEXT_PUBLIC_BASE_URL}/${code}`;
 
@@ -28,6 +30,18 @@ export default function UrlList() {
 	useEffect(() => {
 		fetchUrls();
 	}, []);
+
+	const handleCopyUrl = (shortUrl: string) => {
+		const fullUrl = `${shortenerUrl(shortUrl)}`;
+		navigator.clipboard.writeText(fullUrl).then(() => {
+			setCopied(true);
+			setCopyUrl(shortUrl);
+			setTimeout(() => {
+				setCopied(false);
+				setCopyUrl('');
+			}, 2500);
+		});
+	};
 
 	return (
 		<div className="">
@@ -50,8 +64,13 @@ export default function UrlList() {
 								variant="ghost"
 								size="icon"
 								className="text-muted-foreground hover:bg-muted cursor-pointer"
+								onClick={() => handleCopyUrl(url.shortUrl)}
 							>
-								<CopyIcon className="w-4 h-4" />
+								{copied && copyUrl == url.shortUrl ? (
+									<Check className="w-4 h-4" />
+								) : (
+									<CopyIcon className="w-4 h-4" />
+								)}
 								<span className="sr-only">Copy URL</span>
 							</Button>
 							<span className="flex items-center gap-2">
